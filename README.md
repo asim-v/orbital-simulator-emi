@@ -1,85 +1,93 @@
-# Simulador de Órbitas Planetarias 2D
+# 2D Orbital Simulator
 
-## Descripción General
-
-Este proyecto es una simulación web interactiva de mecánica celeste en dos dimensiones. Utiliza JavaScript nativo (Vanilla JS) y la API Canvas de HTML5 para renderizar cuerpos astronómicos y calcular sus trayectorias en tiempo real basándose en la física newtoniana. El objetivo es proporcionar una herramienta visual para experimentar con la gravedad, las órbitas y la dinámica de sistemas de múltiples cuerpos sin depender de librerías externas.
+Un simulador de física gravitacional de N-cuerpos implementado en JavaScript vanilla utilizando la API de Canvas de HTML5. El proyecto está estructurado modularmente para separar la lógica de cálculo físico, el renderizado gráfico y la gestión de la interfaz de usuario.
 
 ## Arquitectura del Proyecto
 
-El código está estructurado bajo un patrón modular que separa claramente la lógica física, el renderizado gráfico y el control de la interfaz de usuario.
+El sistema sigue un patrón de diseño modular. La lógica se divide en tres dominios principales:
 
-### Módulo de Física (Physics)
+### 1. Física (`src/physics/`)
+Este módulo maneja los datos puros y las leyes deterministas de la simulación. No tiene dependencia del DOM ni del renderizado.
 
-Este módulo es el núcleo matemático de la aplicación. Su responsabilidad es puramente numérica y no tiene dependencia del DOM ni del canvas.
+* **`Vector2D`**: Clase utilitaria para operaciones de álgebra vectorial (suma, resta, producto escalar, normalización).
+* **`AstroBody`**: Estructura de datos que representa un cuerpo celeste. Almacena vectores de estado (posición, velocidad, aceleración), masa y un historial de posiciones (`trail`) para visualización de trayectoria.
+* **`PhysicsEngine`**: Contiene la lógica de interacción gravitacional. Itera sobre los cuerpos para calcular fuerzas acumuladas y resolver la integración numérica.
 
-**AstroBody.js:** Define la clase `AstroBody`, que representa un objeto celeste. Almacena propiedades físicas como masa, posición (vector), velocidad (vector) y aceleración (vector). También mantiene un historial de posiciones pasadas para generar estelas visuales.
+### 2. Renderizado (`src/rendering/`)
+Responsable de la representación visual del estado físico en el elemento `<canvas>`.
 
-**Vector2D.js:** Una clase utilitaria para el manejo de álgebra vectorial bidimensional. Proporciona métodos para operaciones fundamentales como suma, resta, multiplicación por escalares, cálculo de magnitud y normalización de vectores.
+* **`Camera`**: Gestiona la transformación de coordenadas entre el "Espacio Universal" (físico) y el "Espacio de Pantalla" (píxeles). Controla el desplazamiento (`x`, `y`) y el factor de escala (`zoom`).
+* **`Renderer`**: Orquesta el ciclo de dibujo. Limpia el lienzo, dibuja el fondo (gradiente), las estelas, los cuerpos planetarios y los elementos de interfaz superpuestos (UI overlay) como el minimapa o vectores de creación.
 
-**PhysicsEngine.js:** Gestiona las interacciones fundamentales. Contiene la lógica para calcular la atracción gravitacional entre todos los pares de cuerpos y ejecuta el paso de integración numérica para actualizar el estado de la simulación.
+### 3. Interfaz y Control (`src/ui/`)
+Maneja la entrada del usuario y el bucle principal de la aplicación.
 
-### Módulo de Renderizado (Rendering)
+* **`Simulator`**: Clase principal (Singleton implícito). Inicializa los subsistemas, mantiene la lista de cuerpos y ejecuta el bucle de animación (`requestAnimationFrame`). Actúa como puente entre la física y el renderizado.
+* **`InputHandler`**: Escucha eventos del DOM (mouse/teclado) y los traduce en acciones de cámara o comandos de simulación.
+* **`UIManager`**: Sincroniza el estado de los objetos seleccionados con el panel HTML lateral, permitiendo la edición de propiedades en tiempo real.
 
-Este módulo se encarga de la representación visual de los datos calculados por el módulo de física.
+---
 
-**Renderer.js:** Administra el contexto 2D del elemento Canvas. Dibuja el fondo dinámico (gradientes), los cuerpos planetarios con efectos de resplandor (shadows), las estelas de órbita y los elementos de la interfaz superpuesta como el mini-mapa y los vectores de creación.
+## Implementación Matemática
 
-**Camera.js:** Actúa como intermediario entre el sistema de coordenadas del mundo físico y el sistema de coordenadas de la pantalla (píxeles). Gestiona la transformación de vistas permitiendo operaciones de desplazamiento (pan) y acercamiento (zoom).
+### 1. Ley de Gravitación Universal
+La fuerza de atracción entre dos cuerpos se calcula utilizando la Ley de Newton. Para evitar cálculos redundantes, la fuerza se calcula una vez por par de cuerpos y se aplica con signo opuesto a cada uno (Tercera Ley de Newton).
 
-### Módulo de Interfaz y Control (UI)
-
-Este módulo gestiona la entrada del usuario y coordina el bucle principal.
-
-**Simulator.js:** Es la clase principal que orquesta la aplicación. Inicializa los otros módulos, mantiene la lista de cuerpos celestes y ejecuta el bucle de animación (Game Loop).
-
-**InputHandler.js:** Escucha los eventos del ratón (clics, movimiento, rueda) y los traduce en acciones concretas como mover la cámara, seleccionar cuerpos o definir vectores de lanzamiento para nuevos planetas.
-
-**UIManager.js:** Vincula los elementos HTML del panel de control con la lógica de la simulación. Permite la edición en tiempo real de las propiedades de los cuerpos seleccionados y la gestión de estados de la aplicación.
-
-## Flujo de Ejecución
-
-La simulación opera mediante un bucle continuo gestionado por `requestAnimationFrame`. En cada iteración del bucle ocurren tres fases secuenciales.
-
-**1. Fase de Entrada:** El sistema procesa las interacciones del usuario capturadas por el `InputHandler`. Esto incluye la actualización de la posición de la cámara si el usuario está arrastrando el mapa o el cambio del factor de escala si se utiliza el zoom. También se detectan clics para la selección de objetos mediante algoritmos de detección de distancia (Raycasting inverso).
-
-**2. Fase de Actualización Física:** El `Simulator` invoca al `PhysicsEngine` para avanzar el tiempo un paso discreto ($\Delta t$). El motor calcula todas las fuerzas gravitacionales entre pares únicos de cuerpos y actualiza sus vectores de velocidad y posición utilizando integración numérica.
-
-**3. Fase de Renderizado:** El `Renderer` limpia el lienzo y redibuja la escena completa basándose en las nuevas posiciones actualizadas. Se aplica la transformación de coordenadas de la `Camera` para asegurar que los objetos se dibujen en la posición correcta relativa al punto de vista del usuario. Finalmente, se dibujan capas de interfaz como el mini-mapa y los indicadores de selección.
-
-## Fundamentos Físicos y Matemáticos
-
-La simulación se rige por leyes físicas clásicas implementadas mediante métodos computacionales.
-
-### Ley de Gravitación Universal
-
-La fuerza de atracción entre dos cuerpos se calcula utilizando la Ley de Gravitación Universal de Newton. Para dos cuerpos con masas $m_1$ y $m_2$ separados por una distancia $r$, la magnitud de la fuerza $F$ está dada por:
+La magnitud de la fuerza escalar $F$ es:
 
 $$F = G \frac{m_1 m_2}{r^2}$$
 
-Donde $G$ es la constante de gravitación universal (ajustada para propósitos de la simulación). La dirección de la fuerza se determina mediante el vector unitario que une ambos cuerpos.
+Donde:
+* $G$: Constante gravitacional (ajustada para la escala de la simulación).
+* $m_1, m_2$: Masas de los cuerpos.
+* $r$: Distancia euclidiana entre los cuerpos.
 
-### Integración Numérica (Método de Euler Semi-Implícito)
+#### Implementación Vectorial
+Para aplicar esta fuerza en el espacio 2D, se descompone en vectores:
 
-Para simular el movimiento a lo largo del tiempo, no se resuelven las ecuaciones diferenciales analíticamente, sino que se aproximan numéricamente paso a paso. Se utiliza el método de Euler Semi-Implícito debido a su simplicidad y mayor estabilidad energética comparada con el Euler básico para sistemas orbitales.
+1.  **Vector Distancia ($\vec{r}$)**: $\vec{r} = \vec{pos}_2 - \vec{pos}_1$
+2.  **Distancia Escalar ($d$)**: $d = |\vec{r}| = \sqrt{r_x^2 + r_y^2}$
+3.  **Dirección Normalizada ($\hat{u}$)**: $\hat{u} = \frac{\vec{r}}{d}$
+4.  **Vector Fuerza ($\vec{F}$)**: $\vec{F} = \hat{u} \cdot (G \frac{m_1 m_2}{d^2})$
 
-Primero se calcula la aceleración $a$ basada en la fuerza total $F$ aplicada al cuerpo:
+### 2. Integración Numérica (Método de Euler Semi-Implícito)
+El simulador utiliza el método de Euler Semi-Implícito (o Simpléctico) para actualizar la posición de los cuerpos. Este método ofrece mayor estabilidad energética que el Euler explícito estándar para sistemas orbitales.
 
-$$a = \frac{F}{m}$$
+Para cada paso de tiempo ($\Delta t$):
 
-Luego se actualiza la velocidad $v$ utilizando la aceleración y el paso de tiempo $\Delta t$:
+1.  **Cálculo de Aceleración**:
+    $$\vec{a} = \frac{\vec{F}_{total}}{m}$$
+2.  **Actualización de Velocidad**:
+    $$\vec{v}_{t+1} = \vec{v}_t + \vec{a} \cdot \Delta t$$
+3.  **Actualización de Posición** (usando la nueva velocidad):
+    $$\vec{pos}_{t+1} = \vec{pos}_t + \vec{v}_{t+1} \cdot \Delta t$$
 
-$$v_{t+1} = v_t + a \cdot \Delta t$$
+### 3. Transformación de Coordenadas (Cámara)
+Para renderizar la simulación, las coordenadas del mundo físico ($x_w, y_w$) deben transformarse a coordenadas de pantalla ($x_s, y_s$).
 
-Finalmente se actualiza la posición $x$ utilizando la **nueva** velocidad calculada:
+$$x_s = (x_w - camera_x) \cdot zoom + \frac{viewport_w}{2}$$
+$$y_s = (y_w - camera_y) \cdot zoom + \frac{viewport_h}{2}$$
 
-$$x_{t+1} = x_t + v_{t+1} \cdot \Delta t$$
+El proceso inverso (`screenToWorld`) se utiliza para detectar clics del ratón sobre objetos en el espacio físico.
 
-## Instrucciones de Instalación
+---
 
-Debido al uso de Módulos ES6 (import/export), este proyecto no puede ejecutarse abriendo directamente el archivo `index.html` en el navegador debido a las políticas de seguridad CORS (Cross-Origin Resource Sharing) para archivos locales.
+## Flujo de Interacción y Estados
 
-Para ejecutar el simulador es necesario servir los archivos a través de un servidor HTTP local. Si tiene Python instalado, puede ejecutar el siguiente comando en la raíz del directorio del proyecto:
+La clase `Simulator` gestiona una máquina de estados finita simple para controlar la creación de planetas:
 
-`python -m http.server`
+1.  **IDLE**: Estado por defecto. Los clics del ratón se interpretan como selección de objetos mediante *raycasting* (cálculo de distancia entre el puntero y los cuerpos).
+2.  **PLACING**: Iniciado al solicitar un nuevo planeta. El cuerpo sigue la posición del cursor sin física aplicada.
+3.  **AIMING**: Iniciado tras el primer clic en `PLACING`. La posición se fija y el movimiento del ratón define el vector de velocidad inicial ($\vec{v}$) basado en la diferencia entre el centro del cuerpo y el cursor.
 
-Alternativamente, si utiliza entornos de desarrollo como Visual Studio Code, puede utilizar extensiones como "Live Server" para lanzar la aplicación.
+## Requisitos de Ejecución
+
+El proyecto utiliza **Módulos ES6** (`import` / `export`). Debido a las políticas de seguridad de CORS (Cross-Origin Resource Sharing) en los navegadores modernos, la aplicación no puede ejecutarse abriendo directamente el archivo `index.html` desde el sistema de archivos (`file://`).
+
+Es necesario servir los archivos a través de un servidor HTTP local.
+
+### Opciones para ejecutar:
+
+**Con Python 3:**
+```bash
+python -m http.server
