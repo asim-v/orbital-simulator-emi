@@ -1,0 +1,145 @@
+/* Importar una fuente espacial de Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+/* --- ESTILOS DEL CUERPO (Fondo Cósmico) --- */
+body {
+    background-color: #000;
+    /* Deja solo negro para lo que el canvas NO cubra */
+}
+
+/* --- ESTILOS DE CAPA UI (Título Superior Izquierdo) --- */
+#ui-layer {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    pointer-events: none;
+    color: #00FFFF;
+    /* Color brillante para el texto de la cabecera */
+    text-shadow: 0 0 5px #00FFFF;
+}
+
+/* --- ESTILOS DEL PANEL INSPECTOR (Tu código con ajuste de posición) --- */
+#inspector-panel {
+    position: absolute;
+    bottom: 20px;
+    /* Movido a la parte inferior */
+    right: 20px;
+    width: 250px;
+
+    /* Fondo con efecto de cristal futurista */
+    background: rgba(30, 30, 40, 0.7);
+    backdrop-filter: blur(10px);
+    /* Más blur */
+    border-radius: 12px;
+    border: 2px solid #00FFFF;
+    /* Borde brillante */
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+    /* Sombra de neón */
+
+    padding: 20px;
+    color: #E0FFFF;
+    font-family: 'Orbitron', sans-serif;
+}
+
+#inspector-panel h2,
+#inspector-panel h3 {
+    text-align: center;
+    color: #00FFFF;
+    text-shadow: 0 0 3px #00FFFF;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+    padding-bottom: 8px;
+    margin-top: 0;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #aaa;
+    text-transform: uppercase;
+}
+
+input {
+    width: 100%;
+    /* Estilo de entrada oscuro y profundo */
+    background: #111122;
+    border: 1px solid #00FFFF;
+    color: #E0FFFF;
+    padding: 8px;
+    border-radius: 6px;
+}
+
+/* Mejorar la apariencia del input de color */
+input[type="color"] {
+    height: 40px;
+}
+
+/* --- ESTILOS GENERALES DE BOTONES --- */
+button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+
+    /* Base tecnológica */
+    background: #004488;
+    color: #E0FFFF;
+    /* Color de texto blanco azulado */
+    border: 2px solid #00FFFF;
+    /* Borde de neón */
+    border-radius: 6px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    font-family: 'Orbitron', sans-serif;
+
+    /* Sombra de texto (Efecto neón) */
+    text-shadow: 0 0 4px #00FFFF;
+
+    /* Sombra exterior y transición suave */
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.4);
+    transition: all 0.15s ease-in-out;
+}
+
+/* --- ESTADO HOVER (Al pasar el mouse) --- */
+button:hover {
+    background: #0066CC;
+    /* Azul más claro */
+    color: #FFFFFF;
+    border-color: #33FFFF;
+    box-shadow: 0 0 15px #33FFFF;
+    /* Brillo más intenso */
+    transform: translateY(-1px);
+    /* Efecto 3D sutil */
+}
+
+/* --- ESTADO ACTIVE (Al hacer clic) --- */
+button:active {
+    background: #003366;
+    /* Azul oscuro */
+    box-shadow: 0 0 5px #00FFFF,
+        inset 0 0 10px rgba(0, 0, 0, 0.5);
+    /* Sombra interior (efecto de hundimiento) */
+    transform: translateY(1px);
+    /* Empuja el botón hacia abajo */
+}
+
+
+/* --- BOTONES PELIGROSOS (ELIMINAR) --- */
+button.danger {
+    /* Base roja/magenta */
+    background: #880044;
+    border-color: #FF00AA;
+    box-shadow: 0 0 8px rgba(255, 0, 170, 0.5);
+    text-shadow: 0 0 4px #FF00AA;
+}
+
+button.danger:hover {
+    background: #AA0055;
+    border-color: #FF33CC;
+    box-shadow: 0 0 15px #FF33CC;
+}
+
+h1 {
+    font-family: 'Orbitron', sans-serif;
+
+}
